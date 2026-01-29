@@ -1,0 +1,142 @@
+# **What Happens When You Type https://www.google.com in Your Browser and Press Enter?**
+
+Have you ever wondered what happens behind the scenes when you navigate to a website? It seems instantaneous, but there's actually a complex series of steps involving multiple layers of infrastructure working together. Let's explore this fascinating journey from the moment you press Enter to when Google's homepage appears on your screen.
+
+## **DNS Request: Finding Google's Address**
+
+The first step is translating the human-readable domain name into something computers understand. When you type `https://www.google.com`, your browser needs to find the IP address associated with this domain.
+
+Your browser starts by checking multiple cache layers:
+- Browser's own DNS cache
+- Operating system cache
+- Router cache at your local network
+- DNS server cache at your ISP
+
+If the IP address isn't found in any cache, your ISP's DNS server performs a recursive DNS lookup. This process queries multiple DNS servers across the internet:
+- The root name server responds with the address of the top-level domain (TLD) server for `.com`
+- The TLD server provides the address of Google's authoritative name server
+- The authoritative name server returns Google's actual IP address (e.g., 142.250.185.46)
+
+Once resolved, this IP address is cached for future requests to speed up subsequent visits.
+
+## **TCP/IP: Establishing the Connection**
+
+With the IP address in hand, your browser initiates a TCP (Transmission Control Protocol) connection using what's called a "three-way handshake". This handshake ensures both your browser and Google's server are ready to communicate:
+
+1. **SYN**: Your browser sends a synchronization packet to the server
+2. **SYN-ACK**: The server acknowledges and sends its own synchronization packet
+3. **ACK**: Your browser acknowledges the server's response
+
+This TCP connection uses the Internet Protocol (IP) to route data packets through various network infrastructure - routers, ISPs, and internet exchanges - until they reach Google's servers.
+
+## **Firewall: Security Checkpoint**
+
+Before the connection reaches Google's servers, it must pass through multiple firewall layers. Firewalls act as security gatekeepers that:
+- Inspect incoming traffic for malicious patterns
+- Verify that connections are using appropriate ports (port 443 for HTTPS)
+- Block unauthorized access attempts
+- Filter traffic based on predefined security rules
+
+Both your local network and Google's infrastructure employ firewalls to protect against cyber threats and unauthorized access.
+
+## **HTTPS/SSL: Encrypting the Communication**
+
+Since you're using HTTPS (Hypertext Transfer Protocol Secure), a TLS (Transport Layer Security) handshake occurs to encrypt all data exchanged between your browser and the server. This process ensures your data remains private and secure.
+
+The TLS handshake involves several steps:
+
+1. **Client Hello**: Your browser sends its supported TLS version, cipher suites, and a random string of bytes
+2. **Server Hello**: Google's server responds with the agreed TLS version (preferably TLS 1.3), selected cipher suite, and its own random data
+3. **Certificate Exchange**: The server sends its SSL certificate containing its public key and certificate authority (CA) signature
+4. **Key Exchange**: Both parties securely exchange cryptographic keys using methods like Diffie-Hellman
+5. **Handshake Completion**: Session keys are generated, and encrypted "Finished" messages confirm the secure channel
+
+TLS 1.3 completes this entire process in just one round trip, making it significantly faster than TLS 1.2's two round trips.
+
+## **Load Balancer: Distributing the Traffic**
+
+Google receives millions of requests per second, so a single server couldn't handle all that traffic. The request first hits a load balancer, which intelligently distributes incoming traffic across multiple servers.
+
+Load balancers provide several benefits:
+- Prevent any single server from becoming overwhelmed
+- Improve response times by routing requests to the least busy server
+- Enable high availability by redirecting traffic if a server fails
+- Support geographic distribution to serve users from the nearest data center
+
+Modern load balancers use various algorithms like round-robin, least connections, or IP hash to determine which server should handle each request.
+
+## **Web Server: Handling the Request**
+
+Once the load balancer selects a server, the request reaches a web server (like nginx or Apache). The web server's role is to:
+- Receive the HTTP/HTTPS request from your browser
+- Parse the request headers and determine what resource you're requesting
+- Serve static content directly (like images, CSS, JavaScript files)
+- Forward dynamic requests to the application server
+
+For a simple static HTML page, the web server could respond immediately. However, Google's homepage is dynamically generated based on your location, preferences, and other factors, so the web server forwards the request to the application layer.
+
+## **Application Server: Generating the Page**
+
+The application server contains the business logic that powers Google's services. It processes your request by:
+- Executing server-side code (written in languages like Java, Python, or Go)
+- Determining what personalized content to display
+- Applying user preferences and settings
+- Formatting data into HTML, JSON, or other formats
+- Generating the dynamic web page structure
+
+For Google's homepage, the application server determines your location, retrieves your search history (if you're logged in), selects which Google Doodle to display, and compiles all this information into a response.
+
+## **Database: Retrieving the Data**
+
+To generate personalized content, the application server often needs to query databases. These databases store:
+- User account information and preferences
+- Search history and personalization data
+- Cached search results
+- Configuration settings
+
+Google uses distributed database systems with load balancers between the application servers and database replicas. This setup allows:
+- Read operations to be distributed across multiple database replicas
+- Write operations to go to the master database and then replicate to slaves
+- High availability through redundancy
+- Improved performance by reducing database bottlenecks
+
+Once the application server retrieves the necessary data, it constructs the final HTML response.
+
+## **The Response Journey Back**
+
+After the application server generates the page, the response travels back through the same infrastructure in reverse:
+
+1. The web server receives the generated HTML and packages it into an HTTP response
+2. The response passes through the load balancer
+3. The firewall inspects outgoing traffic
+4. The encrypted response travels through the internet via TCP/IP
+5. Your browser receives the response and begins rendering
+
+The HTTP response includes:
+- A status line (e.g., `HTTP/1.1 200 OK`)
+- Response headers (Content-Type, Cache-Control, etc.)
+- The response body containing HTML, CSS, JavaScript, and references to other resources
+
+## **Browser Rendering: Displaying the Page**
+
+Finally, your browser processes the response. It:
+- Parses the HTML structure
+- Requests additional resources (CSS stylesheets, JavaScript files, images)
+- Constructs the Document Object Model (DOM)
+- Applies CSS styles
+- Executes JavaScript code
+- Renders the visible page
+
+The browser may make dozens or even hundreds of additional requests to fully load all page resources, each following a similar process. Modern browsers can make many of these requests in parallel to improve loading speed.
+
+## **Diagram: The Complete Flow**
+
+![HTTPS Request Flow Diagram](https://user-gen-media-assets.s3.amazonaws.com/gemini_images/a572013f-0a9e-47c9-b579-12a83d2ac60c.png)
+
+*Technical diagram showing complete HTTPS request flow with DNS, firewall, load balancer, and database components*
+
+## **Conclusion**
+
+What seems like an instantaneous action actually involves a sophisticated orchestration of technologies working together. From DNS resolution to TCP connections, encryption, load balancing, server processing, and database queries, each component plays a crucial role in delivering web content securely and efficiently.
+
+Understanding this process is essential for full-stack engineers, as it provides insight into where performance bottlenecks might occur, how to optimize infrastructure, and where security measures need to be implemented. The next time you visit a website, you'll appreciate the remarkable complexity happening behind that simple action of pressing Enter.
